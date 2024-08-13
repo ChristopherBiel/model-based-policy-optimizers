@@ -40,7 +40,7 @@ class iCEMOptimizer(BaseOptimizer):
                                       action_dim=self.system.u_dim,
                                       key = self.key,
                                       opt_params=self.opt_params,
-                                      rollout_function=self.rollout_actions,
+                                      rollout_function=rollout_actions,
                                       **self.agent_kwargs)
         return self.agent.init(key)
 
