@@ -42,6 +42,8 @@ class iCEMOptimizer(BaseOptimizer):
                                       opt_params=self.opt_params,
                                       rollout_function=rollout_actions,
                                       **self.agent_kwargs)
+        if self.system is not None:
+            self.agent.set_system(self.system)
         return self.agent.init(key)
 
     @partial(jit, static_argnums=(0, 3))
