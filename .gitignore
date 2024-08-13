@@ -4,3 +4,7 @@
 #.idea
 *.idea
 ~                        
+
+# Virtualenv
+venv
+.venv
