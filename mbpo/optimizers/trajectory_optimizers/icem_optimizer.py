@@ -181,9 +181,11 @@ class iCemTO(BaseOptimizer, Generic[DynamicsParams, RewardParams]):
                  action_dim: int,
                  key: jax.random.PRNGKey = jax.random.PRNGKey(0),
                  opt_params: iCemParams = iCemParams(),
+                 rollout_function: callable = rollout_actions,
                  *args,
                  **kwargs):
         super().__init__(*args, **kwargs)
+        self.rollout_function = rollout_function
         self.horizon = horizon
         self.opt_params = opt_params
         self.key = key
@@ -212,7 +214,7 @@ class iCemTO(BaseOptimizer, Generic[DynamicsParams, RewardParams]):
         initial_state = jnp.repeat(jnp.expand_dims(initial_state, 0), self.opt_params.num_particles, 0)
 
         def objective(seq):
-            optimize_fn = lambda x: rollout_actions(
+            optimize_fn = lambda x: self.rollout_function(
                 system=self.system,
                 system_params=opt_state.system_params,
                 init_state=x,
