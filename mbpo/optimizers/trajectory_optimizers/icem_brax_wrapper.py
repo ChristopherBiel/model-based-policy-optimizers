@@ -52,7 +52,8 @@ class iCEMOptimizer(BaseOptimizer):
             opt_state: iCemOptimizerState,
             evaluate: bool = True) -> Tuple[chex.Array, iCemOptimizerState]:
         assert self.system is not None, "Brax optimizer requires system to be defined."
-        return self.agent.act(obs, opt_state, evaluate)
+        action, opt_state = self.agent.act(obs.reshape(-1,), opt_state, evaluate)
+        return action.reshape(1, -1), opt_state
     
 def rollout_actions(
         system: System,
