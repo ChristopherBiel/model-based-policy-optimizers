@@ -44,7 +44,12 @@ class iCEMOptimizer(BaseOptimizer):
                                       **self.agent_kwargs)
         if self.system is not None:
             self.agent.set_system(self.system)
-        return self.agent.init(key)
+        if true_buffer_state is None:
+            dummy_buffer_key, key = jr.split(key, 2)
+            true_buffer_state = self.dummy_true_buffer_state(dummy_buffer_key)
+        agent_state = self.agent.init(key)
+        agent_state.true_buffer_state = true_buffer_state
+        return agent_state
 
     @partial(jit, static_argnums=(0, 3))
     def act(self,
