@@ -239,7 +239,7 @@ class SAC:
             transitions,
             key_alpha,
             optimizer_state=training_state.alpha_optimizer_state)
-        alpha = jnp.exp(training_state.alpha_params)
+        alpha = jnp.exp(alpha_params)
         critic_loss, q_params, q_optimizer_state = self.critic_update(
             training_state.q_params,
             training_state.policy_params,

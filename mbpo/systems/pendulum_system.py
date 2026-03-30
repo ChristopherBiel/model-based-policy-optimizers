@@ -28,8 +28,8 @@ class PendulumSystem(System[PendulumDynamicsParams, PendulumRewardParams]):
         :param system_params: parameters of the system
         :return: Tuple of next state, reward, updated system parameters
         """
-        x_nex_dist, new_dynamics_params = self.dynamics.next_state(x, u, system_params.dynamics_params)
-        x_next = x_nex_dist.mean()
+        x_next_dist, new_dynamics_params = self.dynamics.next_state(x, u, system_params.dynamics_params)
+        x_next = x_next_dist.mean()
         reward_dist, new_reward_params = self.reward(x, u, system_params.reward_params, x_next)
         reward = reward_dist.mean()
         return SystemState(

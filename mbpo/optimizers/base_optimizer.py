@@ -11,11 +11,10 @@ from brax.training.replay_buffers import ReplayBufferState, UniformSamplingQueue
 from brax.training.types import Transition
 
 
-class BaseOptimizer(ABC, Generic[RewardParams, DynamicsParams]):
+class BaseOptimizer(ABC, Generic[DynamicsParams, RewardParams]):
     def __init__(self, system: System | None = None, key: jr.PRNGKey = jr.PRNGKey(0)):
         self.system = system
         self.key = key
-        pass
 
     def set_system(self, system: System):
         self.system = system
@@ -23,18 +22,18 @@ class BaseOptimizer(ABC, Generic[RewardParams, DynamicsParams]):
     @abstractmethod
     def act(self,
             obs: chex.Array,
-            opt_state: OptimizerState[RewardParams, DynamicsParams],
-            evaluate: bool = True) -> Tuple[chex.Array, OptimizerState]:
+            opt_state: OptimizerState[DynamicsParams, RewardParams],
+            evaluate: bool = True) -> Tuple[chex.Array, OptimizerState[DynamicsParams, RewardParams]]:
         pass
 
     def train(self,
-              opt_state: OptimizerState[RewardParams, DynamicsParams]) -> OptimizerTrainingOutPut[
-        RewardParams, DynamicsParams]:
+              opt_state: OptimizerState[DynamicsParams, RewardParams]) -> OptimizerTrainingOutPut[
+        DynamicsParams, RewardParams]:
         return OptimizerTrainingOutPut(optimizer_state=opt_state)
 
     def init(self,
              key: chex.PRNGKey,
-             true_buffer_state: ReplayBufferState | None = None) -> OptimizerState:
+             true_buffer_state: ReplayBufferState | None = None) -> OptimizerState[DynamicsParams, RewardParams]:
         pass
 
     def dummy_true_buffer_state(self,

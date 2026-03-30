@@ -249,7 +249,7 @@ class iCemTO(BaseOptimizer, Generic[DynamicsParams, RewardParams]):
             action_samples = action_samples.reshape((-1,) + self.opt_dim[::-1]).transpose(0, 2, 1)
             action_samples = jnp.concatenate([action_samples, prev_elites], axis=0)
             values = jax.vmap(objective)(action_samples)
-            best_elite_idx = np.argsort(values, axis=0).squeeze()[-self.opt_params.num_elites:]
+            best_elite_idx = jnp.argsort(values, axis=0).squeeze()[-self.opt_params.num_elites:]
             elites = action_samples[best_elite_idx]
             elite_values = values[best_elite_idx]
             elite_mean = jnp.mean(elites, axis=0)

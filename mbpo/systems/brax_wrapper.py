@@ -59,4 +59,4 @@ class BraxWrapper(envs.Env):
 
     @property
     def backend(self) -> str:
-        return 'string'
+        return 'generalized'

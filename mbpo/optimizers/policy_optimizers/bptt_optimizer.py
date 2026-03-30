@@ -214,7 +214,7 @@ class BPTTOptimizer(BaseOptimizer[BPTTState, BPTTTrainingOutput]):
         self.actor = Actor(features=actor_features, action_dim=self.action_dim, init_stddev=init_stddev,
                            activation=policy_activation)
         self.critic = Critic(features=critic_features, activation=critic_activation)
-        actor_rng, critic_rng, rng = jax.random.split(rng, 3)
+        _, _, rng = jax.random.split(rng, 3)
         self.actor_optimizer = \
             optax.apply_if_finite(optax.adamw(learning_rate=lr_actor, weight_decay=weight_decay_actor),
                                   10000000
@@ -242,7 +242,7 @@ class BPTTOptimizer(BaseOptimizer[BPTTState, BPTTTrainingOutput]):
         self.tau = target_soft_update_tau
         self.use_best_trained_policy = use_best_trained_policy
         self.loss_ent_coefficient = loss_ent_coefficient
-        self.critic_updates_per_policy_updates = critic_updates_per_policy_update
+        self.critic_updates_per_policy_update = critic_updates_per_policy_update
         self.train_policy = lambda obs, opt_state: self.act(obs, opt_state, evaluate=False)
         dummy_transition = Transition(
             observation=jnp.zeros(self.obs_dim),
@@ -384,9 +384,9 @@ class BPTTOptimizer(BaseOptimizer[BPTTState, BPTTTrainingOutput]):
 
         critic_training_key, key = jax.random.split(key, 2)
         num_transitions = initial_states.shape[0] * self.horizon
-        batch_size = math.ceil(num_transitions / self.critic_updates_per_policy_updates)
+        batch_size = math.ceil(num_transitions / self.critic_updates_per_policy_update)
         transition_indices = jax.random.randint(critic_training_key, minval=0, maxval=num_transitions,
-                                                shape=(self.critic_updates_per_policy_updates, batch_size))
+                                                shape=(self.critic_updates_per_policy_update, batch_size))
         shuffled_transitions = jax.tree_util.tree_map(lambda x: x[transition_indices], trajectories)
         shuffled_lambda = lambda_values.reshape(-1)[transition_indices]
 
@@ -413,7 +413,7 @@ class BPTTOptimizer(BaseOptimizer[BPTTState, BPTTTrainingOutput]):
 
         carry = [bptt_state.critic_params, bptt_state.critic_opt_state, bptt_state.target_critic_params]
         carry, outs = jax.lax.scan(update_critic, carry, xs=[shuffled_transitions, shuffled_lambda],
-                                   length=self.critic_updates_per_policy_updates)
+                                   length=self.critic_updates_per_policy_update)
         new_critic_params, new_critic_opt_state, new_target_critic_params = carry[0], carry[1], carry[2]
         critic_loss = outs[0][-1]
         critic_grad_norm = outs[1][-1]
